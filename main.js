@@ -4,6 +4,13 @@ const RatingEle = document.querySelector("#rating-select"); // rating
 const genreEle = document.querySelector("#genre-select"); // genre 
 const URL = "https://movies-app.prakashsakari.repl.co/api/movies";
 
+// add new 
+let searchValue = "";
+let ratingValue = "";
+let genreValue = "";
+let filterredArr = [];
+
+
 const getMovies = async (URL) => {
     try {
         const {
@@ -48,7 +55,7 @@ function debounce(callback, delay) {
 
 function handleSearch(event) {
     searchValue = event.target.value.toLowerCase().trim();
-    filterredArr = searchValue ?.length > 0 ? filterredMovies(searchValue) : moviesData;
+    filterredArr = searchValue?.length > 0 ? filterredMovies(searchValue) : moviesData;
     mainContainer.innerHTML = "";
     createMovieCard(filterredArr);
     // debugger;
@@ -57,18 +64,98 @@ function handleSearch(event) {
     });
 }
 
-function filterredMovies(searchValue) {
+function filterredMovies(value) {
     // debugger;
-    let fArray = moviesData.filter((movie) =>
-        movie.name.toLowerCase() === searchValue ||
-        movie.director_name.toLowerCase() === searchValue ||
-        movie.writter_name.toLowerCase().split(',').includes(searchValue) ||
-        movie.cast_name.toLowerCase().split(',').includes(searchValue)
-    );
-    console.log({
-        fArray
-    });
-    return fArray;
+    let fArray = [];
+
+    if (searchValue ?.length > 0 && searchValue === value) {
+        debugger;
+        if (ratingValue > 0 && !genreValue ?.length === 0) {
+            fArray = moviesData.filter((movie) => (movie.name.toLowerCase() === value ||
+                movie.director_name.toLowerCase() === value ||
+                movie.writter_name.toLowerCase().split(',').includes(value) ||
+                movie.cast_name.toLowerCase().split(',').includes(value)) && movie.imdb_rating >= ratingValue);
+            // if(genreValue ?.length > 0){
+            //     fArray = fArray.filter(movie=>movie.genre.includes(genreValue));
+            // }
+            return fArray;
+        } else if (genreValue ?.length > 0 && ratingValue === 0) {
+            fArray = moviesData.filter((movie) => (movie.name.toLowerCase() === value ||
+                movie.director_name.toLowerCase() === value ||
+                movie.writter_name.toLowerCase().split(',').includes(value) ||
+                movie.cast_name.toLowerCase().split(',').includes(value)) && movie.genre.includes(genreValue));
+            // if(ratingValue > 0){
+            //     fArray = fArray.filter(movie=>movie.imdb_rating >= ratingValue);
+            // }
+            return fArray;
+            // }
+        } else if (genreValue ?.length > 0 && ratingValue > 0) {
+            fArray = moviesData.filter((movie) => (movie.name.toLowerCase() === value ||
+                movie.director_name.toLowerCase() === value ||
+                movie.writter_name.toLowerCase().split(',').includes(value) ||
+                movie.cast_name.toLowerCase().split(',').includes(value)) && movie.imdb_rating >= ratingValue && movie.genre.includes(genreValue));
+            return fArray;
+        } else {
+            fArray = moviesData.filter((movie) =>
+                movie.name.toLowerCase() === value ||
+                movie.director_name.toLowerCase() === value ||
+                movie.writter_name.toLowerCase().split(',').includes(value) ||
+                movie.cast_name.toLowerCase().split(',').includes(value));
+            return fArray;
+        }
+        console.log({
+            fArray
+        });
+    }
+
+    if (ratingValue > 0 && ratingValue === value) {
+        debugger;
+        if (searchValue ?.length > 0 && !genreValue ?.length > 0) {
+            fArray = moviesData.filter((movie) => (movie.name.toLowerCase() === searchValue ||
+                movie.director_name.toLowerCase() === searchValue ||
+                movie.writter_name.toLowerCase().split(',').includes(searchValue) ||
+                movie.cast_name.toLowerCase().split(',').includes(searchValue)) && movie.imdb_rating >= value);
+            return fArray;
+        } else if (genreValue?.length > 0 && searchValue ?.length > 0) {
+            fArray = moviesData.filter((movie) => (movie.name.toLowerCase() === searchValue ||
+                movie.director_name.toLowerCase() === searchValue ||
+                movie.writter_name.toLowerCase().split(',').includes(searchValue) ||
+                movie.cast_name.toLowerCase().split(',').includes(searchValue)) && movie.imdb_rating >= value && movie.genre.includes(genreValue));
+            return fArray;
+        } else if (genreValue?.length > 0 && !searchValue?.length > 0) {
+            fArray = moviesData.filter((movie) => movie.imdb_rating >= value && movie.genre.includes(genreValue));
+            return fArray;
+        } else {
+            fArray = moviesData.filter((movie) => movie.imdb_rating >= value)
+            return fArray;
+        }
+    }
+
+    if (genreValue?.length > 0 && genreValue === value) {
+        debugger;
+        if (searchValue?.length > 0 && ratingValue === 0) {
+            fArray = moviesData.filter((movie) => (movie.name.toLowerCase() === searchValue ||
+                movie.director_name.toLowerCase() === searchValue ||
+                movie.writter_name.toLowerCase().split(',').includes(searchValue) ||
+                movie.cast_name.toLowerCase().split(',').includes(searchValue)) && movie.genre.includes(value));
+            return fArray;
+        } else if (ratingValue > 0 && searchValue?.length > 0) {
+            fArray = moviesData.filter((movie) => (movie.name.toLowerCase() === searchValue ||
+                movie.director_name.toLowerCase() === searchValue ||
+                movie.writter_name.toLowerCase().split(',').includes(searchValue) ||
+                movie.cast_name.toLowerCase().split(',').includes(searchValue)) && movie.imdb_rating >= ratingValue && movie.genre.includes(value));
+            return fArray;
+        } else if (ratingValue > 0 && !searchValue?.length > 0) {
+            fArray = moviesData.filter((movie) => movie.imdb_rating >= ratingValue && movie.genre.includes(value));
+            return fArray;
+        } else {
+            fArray = moviesData.filter((movie) => movie.genre.includes(value));
+            return fArray;
+        }
+
+
+    }
+
 }
 const createElement = (element) => document.createElement(element);
 // debugger;
@@ -148,9 +235,10 @@ const createMovieCard = (moviesArray) => {
 
 function handleRatingSearch(event) {
     // debugger;
-    let rating = event.target.value;
-    filterredArr = filterredArr.length > 0 ? filterredArr.filter((movie) => movie.imdb_rating >= rating) : moviesData.filter((movie) => movie.imdb_rating >= rating);
+    ratingValue = event.target.value;
+    // filterredArr = filterredArr.length > 0 ? filterredArr.filter((movie) => movie.imdb_rating >= rating) : moviesData.filter((movie) => movie.imdb_rating >= rating);
     // filterredArr = rateArr;
+    filterredArr = ratingValue > 0 ? filterredMovies(ratingValue) : moviesData;
     console.log(filterredArr);
     mainContainer.innerHTML = "";
     createMovieCard(filterredArr);
@@ -178,16 +266,20 @@ function getGenreHTML(gArr) {
     gArr.map(genre => {
         genreHTML += `<option class="option" value="${genre}">${genre}</option>`
     });
-    genreEle.innerHTML += genreHTML;                             
+    genreEle.innerHTML += genreHTML;
 }
 
 function handleGenreSearch(event) {
     // debugger;
-    let genreValue = event.target.value;
-    filterredArr = filterredArr.length > 0 ? filterredArr.filter((movie) => movie.genre.includes(genreValue)) : moviesData.filter((movie) => movie.genre.includes(genreValue));
+    genreValue = event.target.value;
+    filterredArr = genreValue?.length > 0 ? filterredMovies(genreValue) : moviesData;
     console.log(filterredArr);
     mainContainer.innerHTML = "";
     createMovieCard(filterredArr);
+    // filterredArr = filterredArr.length > 0 ? filterredArr.filter((movie) => movie.genre.includes(genreValue)) : moviesData.filter((movie) => movie.genre.includes(genreValue));
+    // console.log(filterredArr);
+    // mainContainer.innerHTML = "";
+    // createMovieCard(filterredArr);
 }
 
 
@@ -202,8 +294,7 @@ console.log({
 });
 getGenreHTML(gArr);
 
-let searchValue = "";
-let filterredArr = [];
+
 const debounceInput = debounce(handleSearch, 600); // debouncing (applying delay)
 searchEle.addEventListener("keyup", debounceInput); // filtering the data on the basis of the user input on search bar 
 RatingEle.addEventListener("change", handleRatingSearch);
